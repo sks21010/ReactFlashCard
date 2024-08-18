@@ -23,8 +23,8 @@ const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
 })
 
-export async function POST(req) {
-  
+export async function POST(req) {    
+
     const data = await req.text()
 
     const completion = await openai.chat.completions.create({

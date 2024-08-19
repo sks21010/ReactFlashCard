@@ -76,9 +76,7 @@ export default function Home() {
   <Button variant="contained" color="primary" sx={{mt: 2, mr: 2}} onClick={handleGetStartedClick}>
     Get Started
   </Button>
-  <Button variant="outlined" color="primary" sx={{mt: 2}}>
-    Learn More
-  </Button>
+  
 </Box>
 <Box sx={{my: 6}}>
   <Typography variant="h4" component="h2" textAlign={"center"} >Features</Typography>
@@ -115,7 +113,7 @@ export default function Home() {
       {' '}
       Access to basic flashcard features and limited storage.
       </Typography>
-      <Button variant="contained" color = "primary" sx = {{mt:2}}>
+      <Button variant="contained" color = "primary" sx = {{mt:2}} onClick={handleSubmit}>
     Choose Basic
       </Button>
       </Box>

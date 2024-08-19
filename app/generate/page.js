@@ -17,6 +17,7 @@ export default function Generate() {
   const [flipped, setFlipped] = useState({})
   const [name, setName] = useState('')
   const [open, setOpen] = useState(false)
+  const [isSaving, setIsSaving] = useState(false);
   const router = useRouter()
 
   const handleSubmit = async () => {
@@ -46,45 +47,90 @@ const handleClose = () => {
     setOpen(false)
 }
 
-const saveFlashcards = async () => {
-    if (!name) {
-      alert('Please enter a name')
-      return
-    }
+// const saveFlashcards = async () => {
+//     if (!name) {
+//       alert('Please enter a name')
+//       return
+//     }
   
    
-      const userDocRef = doc(collection(db, 'users'), user.id)
-      const docSnap = await getDoc(userDocRef)
+//       const userDocRef = doc(collection(db, 'users'), user.id)
+//       const docSnap = await getDoc(userDocRef)
   
-      const batch = writeBatch(db)
+//       const batch = writeBatch(db)
   
-      if (docSnap.exists()) {
-        const collections = docSnap.data().flashcards || []
-            if(collections.find((f) => f.name === name )) {
-                alert("Flashcard collection with the same name already exists. ")
-                return
-            }
-            else {
-                collections.push({name})
-                batch.set(userDocRef, { flashcards: collections }, {merge:true})
-            }
+//       if (docSnap.exists()) {
+//         const collections = docSnap.data().flashcards || []
+//             if(collections.find((f) => f.name === name )) {
+//                 alert("Flashcard collection with the same name already exists. ")
+//                 return
+//             }
+//             else {
+//                 collections.push({name})
+//                 batch.set(userDocRef, { flashcards: collections }, {merge:true})
+//             }
         
-        }
-      else {
-        batch.set(userDocRef, { flashcardSets: [{ name}] })
-      }
+//         }
+//       else {
+//         batch.set(userDocRef, { flashcardSets: [{ name}] })
+//       }
 
-      const colRef = collection(userDocRef, name)
-      flashcards.forEach((flashcard) => {
-        const cardDocRef = doc(colRef)
-        batch.set(cardDocRef)
-      })
+//       const colRef = collection(userDocRef, name)
+//       flashcards.forEach((flashcard) => {
+//         const cardDocRef = doc(colRef)
+//         batch.set(cardDocRef, flashcard)
+//       })
 
-      await batch.commit()
-      handleClose()
-      router.push('/flashcards')
+//       await batch.commit()
+//       handleClose()
+//       router.push('/flashcards')
   
+// }
+
+const saveFlashcards = async () => {
+  if (!name.trim()) {
+    alert('Please enter a name');
+    return;
   }
+  setIsSaving(true);
+    try {
+        const userDocRef = doc(collection(db, "users"), user.id);
+        const userDocSnap = await getDoc(userDocRef);
+
+        const batch = writeBatch(db);
+
+        if (userDocSnap.exists()) {
+            const userData = userDocSnap.data();
+            const updatedSets = [
+                ...(userData.flashcardSets || []),
+                { name, flashcards }
+            ];
+            batch.update(userDocRef, { flashcardSets: updatedSets });
+        } else {
+            batch.set(userDocRef, { flashcardSets: [{ name, flashcards }] });
+        }
+
+        const setDocRef = doc(collection(userDocRef, "flashcardSets"), name);
+        flashcards.forEach((flashcard) => {
+            const cardDocRef = doc(setDocRef);
+            batch.set(cardDocRef, flashcard);
+        });
+
+        await batch.commit();
+
+        alert("Flashcards saved successfully!");
+        handleClose();
+        setName("");
+        router.push('/flashcards');
+    } catch (error) {
+        console.error("Error saving flashcards:", error);
+        alert("An error occurred while saving flashcards. Please try again.");
+    } finally {
+        setIsSaving(false);
+    }
+}
+
+
 
   
   return (

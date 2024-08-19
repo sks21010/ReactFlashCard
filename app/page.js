@@ -1,10 +1,50 @@
 "use client"
 
 import getStripe from "@/utils/get-stripe"
-import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs"
+import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/nextjs"
+import {useRouter} from "next/navigation";
 import { AppBar, Container, Toolbar, Typography,  Button, Box, Grid} from "@mui/material"
 import Head from "next/head"
+
 export default function Home() {
+
+  const {isSignedIn} = useUser();
+  const router = useRouter();
+
+  const handleGetStartedClick = () => {
+    if (isSignedIn) {
+      router.push("/generate");
+    }
+    else {
+      router.push("/sign-in");
+    }
+  };
+
+  const handleSubmit = async () => {
+    const checkoutSession = await fetch("/api/checkout_session", {
+      method: "POST",
+      headers: {
+        origin: "https://localhost:3000"
+      },
+    })
+
+    const checkoutSessionJson = await checkoutSession.json()
+
+    if (checkoutSession.statusCode === 500) {
+      console.error(checkoutSession.message)
+      return
+    }
+
+    const stripe = await getStripe()
+    const {error} = await stripe.redirectToCheckout({
+      sessionId: checkoutSessionJson
+    })
+
+    if (error) {
+      console.warn(error.message)
+    }
+  }
+
   return (
     <Container maxWidth = "lg">
       <Head >
@@ -17,8 +57,8 @@ export default function Home() {
       Flashcard SaaS
     </Typography>
     <SignedOut>
-      <Button color="inherit" href="/sign-in">Login</Button>
-      <Button color="inherit" href="/sign-up">Sign Up</Button>
+      <Button color="inherit" href="/sign-in">Login/Signup</Button>
+      {/* <Button color="inherit" href="/sign-up">Sign Up</Button> */}
     </SignedOut>
     <SignedIn>
       <UserButton />
@@ -33,7 +73,7 @@ export default function Home() {
     {' '}
     The easiest way to create flashcards from your text.
   </Typography>
-  <Button variant="contained" color="primary" sx={{mt: 2, mr: 2}} href="/generate">
+  <Button variant="contained" color="primary" sx={{mt: 2, mr: 2}} onClick={handleGetStartedClick}>
     Get Started
   </Button>
   <Button variant="outlined" color="primary" sx={{mt: 2}}>
@@ -88,8 +128,8 @@ export default function Home() {
       {' '}
       Unlimited flashcards and storage, with priority support
       </Typography>
-      <Button variant="contained" color = "primary" sx = {{mt:2}}>
-    Choose Basic
+      <Button variant="contained" color = "primary" sx = {{mt:2}} onClick={handleSubmit}>
+    Choose Pro
       </Button>
       </Box>
   </Grid>

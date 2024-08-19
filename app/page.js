@@ -24,7 +24,7 @@ export default function Home() {
     const checkoutSession = await fetch("/api/checkout_session", {
       method: "POST",
       headers: {
-        origin: "https://localhost:3000"
+        origin: "http://localhost:3000"
       },
     })
 
@@ -37,7 +37,7 @@ export default function Home() {
 
     const stripe = await getStripe()
     const {error} = await stripe.redirectToCheckout({
-      sessionId: checkoutSessionJson
+      sessionId: checkoutSessionJson.id
     })
 
     if (error) {
@@ -57,8 +57,8 @@ export default function Home() {
       Flashcard SaaS
     </Typography>
     <SignedOut>
-      <Button color="inherit" href="/sign-in">Login/Signup</Button>
-      {/* <Button color="inherit" href="/sign-up">Sign Up</Button> */}
+      <Button color="inherit" href="/sign-in">Login</Button>
+      <Button color="inherit" href="/sign-up">Sign Up</Button>
     </SignedOut>
     <SignedIn>
       <UserButton />

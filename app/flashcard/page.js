@@ -1,6 +1,6 @@
 'use client'
 
-import {useUser} from "@clerk/next.js"
+import {useUser} from '@clerk/nextjs'
 import {useEffect, useState} from "react"
 import {collection, doc, getDoc, getDocs} from "firebase/firestore"
 import {db} from "@/firebase"
@@ -20,9 +20,9 @@ export default function Flashcard() {
 
     useEffect(() => {
         async function getFlashcard() {
-            if (!search || user) return
-            const colRef = collection(doc(collection(db, "users"), user.id), search)
-            const docs = await getDocs(docRef)
+          if ( !user || !search) return
+            const colRef = collection(doc(collection(db, 'users'), user.id), search)
+            const docs = await getDocs(colRef)
             const flashcards = []
 
             docs.forEach((doc) => {
@@ -40,14 +40,15 @@ export default function Flashcard() {
         }))
     }
 
-    if (!isLoaded || isSignedIn) {
+    if (!isLoaded || !isSignedIn) {
         return <></>
     }
 
-    return (
-        <Container maxWidth = "100vw">
-            <Grid container spacing={3} sx={{mt: 4}}></Grid>
-            
+    return <Container maxWidth = "100vw">
+            {flashcards.length > 0 && (
+        <Box sx={{mt: 4}}>
+          <Typography variant="h5">Saved Flashcards</Typography>
+          <Grid container spacing={3}>
             {flashcards.map((flashcard, index) => (
               <Grid item xs={12} sm={6} md={4} key={index}>
                 <Card>
@@ -112,8 +113,12 @@ export default function Flashcard() {
                 </Card>
               </Grid>
             ))}
-          
+          </Grid>
+         
+
+        </Box>
+      )}
         </Container>
-    )
+    
 
 }

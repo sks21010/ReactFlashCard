@@ -38,6 +38,8 @@ env/
 # vercel
 .vercel
 
+.firebase.js
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

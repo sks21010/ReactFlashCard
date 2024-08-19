@@ -11,7 +11,7 @@ export default function SignUpPage() {
       Flashcard SaaS
     </Typography>
     <Button color="inherit">
-      <Link href="/login" passHref>
+      <Link href="/sign-in" passHref>
         Login
       </Link>
     </Button>

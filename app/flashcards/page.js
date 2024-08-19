@@ -1,11 +1,14 @@
 'use client'
-import {useUser} from '@clerk/next.js'
+import {useUser} from '@clerk/nextjs'
+
 import {useEffect, useState} from 'react'
 
 import {collection, doc, getDoc, setDoc} from 'firebase/firestore'
 import {db} from '@/firebase'
 import {useRouter} from 'next/navigation'
 import { Router } from 'next/router'
+import { Container, Grid, CardActionArea, CardContent, Typography, Card } from '@mui/material'
+
 
 export default function Flashcards() {
     const {isLoaded, isSignedIn, user} = useUser()
@@ -46,7 +49,7 @@ export default function Flashcards() {
                     <Card>
                         <CardActionArea
                         onClick={() => {
-                            handleCardClick(id)
+                            handleCardClick(flashcard.name)
                         }}>
                             <CardContent>
                                 <Typography variant="h6">

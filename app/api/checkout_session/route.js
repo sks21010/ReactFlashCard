@@ -31,45 +31,46 @@ export async function GET(req) {
 
 export async function POST(req) {
   try {
+    const { plan } = await req.json();
+
+    const price = plan === 'basic' ? 500 : 1000;  // $5.00 for Basic, $10.00 for Pro
+
     const params = {
-        mode: 'subscription',
-        payment_method_types: ['card'],
-        line_items: [
-          {
-            price_data: {
-              currency: 'usd',
-              product_data: {
-                name: 'Pro subscription',
-              },
-              unit_amount: formatAmountForStripe(10, 'usd'), // $10.00
-              recurring: {
-                interval: 'month',
-                interval_count: 1,
-              },
+      mode: 'subscription',
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: plan === 'basic' ? 'Basic subscription' : 'Pro subscription',
             },
-            quantity: 1,
+            unit_amount: formatAmountForStripe(price / 100, 'usd'),
+            recurring: {
+              interval: 'month',
+              interval_count: 1,
+            },
           },
-        ],
-        success_url: `${req.headers.get(
-          'origin',
-        )}/result?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${req.headers.get(
-          'origin',
-        )}/result?session_id={CHECKOUT_SESSION_ID}`,
-      }
-      
-      const checkoutSession = await stripe.checkout.sessions.create(params)
-      
-      return NextResponse.json(checkoutSession, {
-        status: 200,
-      })
+          quantity: 1,
+        },
+      ],
+      success_url: `${req.headers.get('origin')}/result?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${req.headers.get('origin')}/result?session_id={CHECKOUT_SESSION_ID}`,
+    };
+
+    const checkoutSession = await stripe.checkout.sessions.create(params);
+
+    return NextResponse.json(checkoutSession, {
+      status: 200,
+    });
   } catch (error) {
-    console.error('Error creating checkout session:', error)
+    console.error('Error creating checkout session:', error);
     return new NextResponse(JSON.stringify({ error: { message: error.message } }), {
       status: 500,
-    })
+    });
   }
 }
+
 
 
 

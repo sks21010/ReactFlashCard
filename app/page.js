@@ -20,30 +20,33 @@ export default function Home() {
     }
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (plan) => {
     const checkoutSession = await fetch("/api/checkout_session", {
       method: "POST",
       headers: {
+        "Content-Type": "application/json",
         origin: "http://localhost:3000"
       },
-    })
-
-    const checkoutSessionJson = await checkoutSession.json()
-
-    if (checkoutSession.statusCode === 500) {
-      console.error(checkoutSession.message)
-      return
+      body: JSON.stringify({ plan })
+    });
+  
+    const checkoutSessionJson = await checkoutSession.json();
+  
+    if (checkoutSession.status === 500) {
+      console.error(checkoutSessionJson.message);
+      return;
     }
-
-    const stripe = await getStripe()
-    const {error} = await stripe.redirectToCheckout({
-      sessionId: checkoutSessionJson.id
-    })
-
+  
+    const stripe = await getStripe();
+    const { error } = await stripe.redirectToCheckout({
+      sessionId: checkoutSessionJson.id,
+    });
+  
     if (error) {
-      console.warn(error.message)
+      console.warn(error.message);
     }
-  }
+  };
+  
 
   return (
     <Container maxWidth = "lg">
@@ -113,7 +116,7 @@ export default function Home() {
       {' '}
       Access to basic flashcard features and limited storage.
       </Typography>
-      <Button variant="contained" color = "primary" sx = {{mt:2}} onClick={handleSubmit}>
+      <Button variant="contained" color = "primary" sx = {{mt:2}} onClick={() => handleSubmit("basic")}>
     Choose Basic
       </Button>
       </Box>
@@ -126,7 +129,7 @@ export default function Home() {
       {' '}
       Unlimited flashcards and storage, with priority support
       </Typography>
-      <Button variant="contained" color = "primary" sx = {{mt:2}} onClick={handleSubmit}>
+      <Button variant="contained" color = "primary" sx = {{mt:2}} onClick={() => handleSubmit("pro")}>
     Choose Pro
       </Button>
       </Box>
